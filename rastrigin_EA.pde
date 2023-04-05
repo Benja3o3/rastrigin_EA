@@ -1,17 +1,17 @@
 PImage rastrigin;
 int DIM = 2; // Dimensiones de la funcion Rastrigin
-int w = 200; // Variable de biodiversidad (w++ Mas diversidad, w-- Menos diversidad) (200 Ok)
+int w = 200; // Variable de biodiversidad (Mutacion) (w++ Mas diversidad, w-- Menos diversidad) (200 Ok)
 float coef_genetica_1 = 0.7; // Coeficiente de concentracion en las caracteristicas de la particula con mejor fit
 float coef_genetica_2 = 1 - coef_genetica_1;
 
-int puntos = 20; // Cantidad de "animales" en el plano
+int puntos = 50; // Cantidad de "animales" en el plano
 float total_fitness = 0.0; // Fitness total, usado para calcular las probabilidades
 Animal[] A; // Arreglo de puntos
 float d = 15; // Radio del circulo (despliegue)
 float gbestx,gbesty,bestx,besty,best=1000; //Solo para el despliegue
 int gens = 0; // Generaciones transcurridas
 int gens_to_the_best = 0; // Generaciones transcurridas hasta encontrar el mejor fit
-
+String linea = "gen,bestfit,promfit\n";
 
 class Animal{
     float x,y,fit,prob,prob_acum; // Posicion en el plano (Representan caracteristicas, ejemplo ADN)
@@ -137,8 +137,8 @@ Animal[] Cruzamiento(Animal[] A){
     //Se agregan al arreglo
     C[c] = z;
     c++;
-    C[c] = w;
-    c++;
+    // C[c] = w;
+    // c++;
     // Se eliminan las particulas padre para que no se repitan
     Animal[] tempArray = new Animal[A.length - 1];
     System.arraycopy(A, 0, tempArray, 0, a1);
@@ -159,6 +159,14 @@ void draw(){
   A = Selection(A);
   A = Cruzamiento(A);
   gens++;
+  float prom = fitPromedio();
+  // delay(50);
+  linea+=str(gens)+","+str(best)+","+str(prom)+"\n";
+  if (gens < 5000)saveStrings("salida.txt", new String[] {linea});
+  if (gens > 100) w = 100;
+  if (gens > 500) w = 50;
+  if (gens > 750) w = 10;
+  if (gens > 1000) w = 1;
 }
 
 //Funcion que dibuja el plano cartesiano en la ventana
@@ -181,4 +189,12 @@ void muestraDatos(){
   fill(0,0,0);
   textFont(f,20);
   text("Mejor fitness : "+str(best)+"\nMejor posicion : ("+str(bestx)+","+str(besty)+")"+"\nGeneraciones hasta el mejor: "+str(gens_to_the_best)+"\nGeneracion "+str(gens),10,900);
+}
+
+float fitPromedio(){
+  float promedio = 0-0;
+  for (Animal i : A){
+    promedio += i.fit;
+  }
+  return promedio/puntos;
 }
